@@ -15,6 +15,7 @@ import os
 import random
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Subset
+import matplotlib.pyplot as plt
 
 class UNet(nn.Module):
     def __init__(self, n_class):
@@ -198,3 +199,33 @@ for epoch in range(num_epochs):
     valid_loss = valid_loss / len(valid_loader.dataset)
     
     print(f'Epoch {epoch+1}/{num_epochs} | Train_loss: {train_loss:.4f} | Validation loss: {valid_loss:.4f}')
+
+
+def predict_single_image(img_path, model, transform, device):
+    image = Image.open(img_path).convert('RGB')
+    image = transform(image).unsqueeze(0).to(device)
+    
+    with torch.no_grad():
+        output = model(image)
+        output = torch.sigmoid(output)
+        output = output.squeeze().cpu().numpy()
+    
+    return output
+
+# testing on random image ..
+test_image_path = './random.jpg' 
+predicted_mask = predict_single_image(test_image_path, model, transform, device)
+
+original_image = Image.open(test_image_path)
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1)
+plt.imshow(original_image)
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(predicted_mask, cmap='gray')
+plt.title('Predicted Mask')
+plt.axis('off')
+
+plt.show()
