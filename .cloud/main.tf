@@ -36,9 +36,15 @@ module "vpc" {
   }
 }
 
+variable "public_ssh_key" {
+  type        = string
+  description = "The public ssh key" 
+  
+}
+
 resource "aws_key_pair" "default" {
   key_name   = "SRE-KEY-PAIR"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCYuMXcQUrMCI08/EU3PL+qEiipviiRKelbNpfdYVb0x8JXEWU6yjEnwZgLxigxClGIxgHFDPsBqYNjJtzKlR8/w5x8DR/Mbdt0b0y4QDwaPTwwa/Onav6rqJiBi50uq+DhntY4KeJRjKZfUHGcWsuvh4FZKx9cfyuby49Z7vxQ6Nz7QhiROHVlIcbdgT9V1QXQq/t0J5A4aFYeoG//vzdEzLeSilxiXz4gyx+K+CmI6d67+eSwd1k0vaRaLfVt26znX6PSqtUNHPLl5wLAhUmMiYHjQwx6W4LXDj6EolPzekLB4xvh6rBnkLYH5FXuxdERrr5pjapa6dmNyfoHNw2lOvqPnmenun9IVvzhL6TvJmgdfZgXdeGH76zgDY9yPlryb/YhbkYW22ZuMZyK5OZC7MFBUIBcNv5oHTS6U62o/ntBYiAQi6DTICVpVZaQnYUtB1CyLuaLjxKp/9yoT8edRsT1Ue0RomaKxKZHBsGX4wJq32tXND9WmTl42RlWp2a+fxRlGFPTbpLicBURKWhiQ/mIraSdtUjyJvHS83HzHBbcTxEBg3yCOcLhC2IpKtBRddCv72GkMGOJZA6VhwLdJ1jEJ/P5F07/0PjG81dlrbCHHbknTGFdgOd4fxjf4PbLaN7j39IedZpgOzO1QltM53Z1SDh9wi7GQmJ91vYfVw== rui@rui-ThinkPad-E15"
+  public_key = var.public_ssh_key
 }
 
 module "ssh_security_group" {
