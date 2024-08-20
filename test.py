@@ -5,6 +5,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from model import UNet 
 from customDataset import CustomDataset  
+import numpy as np
 
 
 model_path = 'best_model.pth'
@@ -22,7 +23,7 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-def predict_single_image(img_path, model, transform, device):
+def predict_single_image(img_path, model, transform, device, threshold = 0.1):
     image = Image.open(img_path).convert('RGB')
     image = transform(image).unsqueeze(0).to(device)
     
@@ -30,8 +31,11 @@ def predict_single_image(img_path, model, transform, device):
         output = model(image)
         output = torch.sigmoid(output)
         output = output.squeeze().cpu().numpy()
+    plt.figure(figsize=(8, 8))
+    plt.imshow(output, cmap='gray') 
     
-    return output
+    binary_mask = np.where(output > threshold, 255, 0).astype(np.uint8)
+    return binary_mask
 
 test_image_path = 'random.jpg' 
 predicted_mask = predict_single_image(test_image_path, model, transform, device)
