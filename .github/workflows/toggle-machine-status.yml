@@ -1,0 +1,58 @@
+
+
+name: 'Terraform'
+
+on:
+  workflow_dispatch:
+    inputs:
+      machine_status:
+        type: boolean
+      apply:
+        type: boolean
+        default: true
+      environment:
+        type: environment
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      TF_VAR_PUBLIC_SSH_KEY: ${{ secrets.PUBLIC_SSH_KEY }}
+      TF_VAR_CREATE_INSTANCE: ${{ inputs.machine_status }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: .cloud      
+
+    - name: Terraform Format
+      run: terraform fmt -check
+      working-directory: .cloud  
+
+    - name: Terraform Plan
+      run: make plan
+      working-directory: .cloud      
+
+      # On push to "main", build or change infrastructure according to Terraform configuration files
+      # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+    - name: Terraform Apply
+      if: ${{ inputs.apply }}
+      run: make apply
+      working-directory: .cloud      
+
